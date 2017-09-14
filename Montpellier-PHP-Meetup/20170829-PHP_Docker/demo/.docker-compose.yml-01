@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+    marketplace-web:
+        container_name: marketplacev2-web
+        image: php:5.6-apache
+        external_links:
+            - demo-mysql:mysql
+            - demo-elasticsearch:elasticsearch
+        ports:
+            - "8080:80"
+        volumes:
+            - ./web:/var/www/html
+
+networks:
+    default:
+        external:
+            name: demo
+

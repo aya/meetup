@@ -1,0 +1,42 @@
+version: "2"
+
+services:
+    mysql:
+        container_name: demo-mysql
+        image: mariadb:10
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+    elasticsearch:
+        container_name: demo-elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+    consul:
+        container_name: demo-consul
+        image: consul:latest
+        ports:
+            - "8500:8500"
+    registrator:
+        container_name: demo-registrator
+        command: -internal consul://consul:8500
+        image: gliderlabs/registrator
+        external_links:
+            - demo-consul:consul
+        volumes:
+            - /var/run/docker.sock:/tmp/docker.sock
+    fabio:
+        container_name: demo-fabio
+        command: /fabio -registry.backend "consul" -registry.consul.addr "consul:8500" -proxy.addr ":80"
+        image: fabiolb/fabio
+        ports:
+            - "80:80"
+            - "9998:9998"
+
+networks:
+   default:
+       external:
+           name: demo
+
